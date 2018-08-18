@@ -226,13 +226,13 @@ local Keybinds = {
 --药水管理
 local Potions = {
   --治疗石 5512.
-  {'#5512', 'item(5512).usable&item(5512).count>0&player.health<=UI(HS_spin)&UI(HS_check)'},
+  {'#5512', 'item(5512).usable & item(5512).count>0 & player.health<=UI(HS_spin) & UI(HS_check)'},
   --海滨治疗药水.
-  {'#152494', 'item(152494).usable&item(152494).count>0&player.health<=UI(AHP_spin)&UI(AHP_check)'},
+  {'#152494', 'item(152494).usable & item(152494).count>0 & player.health<=UI(AHP_spin) & UI(AHP_check)'},
   --海滨活力药水.
-  {'#163082', 'item(163082).usable&item(163082).count>0&player.health<=UI(AsHP_spin)&UI(AsHP_check)'},
+  {'#163082', 'item(163082).usable & item(163082).count>0 & player.health<=UI(AsHP_spin) & UI(AsHP_check)'},
   --海滨法力药水.
-  {'#152495', 'item(152495).usable&item(152495).count>0&player.mana<=UI(AMP_spin)&UI(AMP_check)'},
+  --{'#152495', 'item(152495).usable & item(152495).count>0 & player.mana<=UI(AMP_spin) & UI(AMP_check)'},
 }
 
 --升腾系列？
@@ -446,20 +446,20 @@ local Stopcasting = {
 
 
 local inCombat = {
---{Stopcasting},
---{Potions},
---{Cooldowns},
---{'!Purify', 'toggle(disp) & player.spell(Purify).cooldown == 0 & purify & area(8).friendly == 1 & range <= 40', 'friendly'},
---{'%dispelall', 'toggle(disp) & spell(Purify).cooldown == 0)'},
---{'fade', '{target.inmelee || player.area(2).enemies >= 1} & player.aggro & !partycheck == 1'},
---{'Psychic Scream', 'player.spell(Fade).cooldown > 0 & player.aggro & !toggle(xDPS) & player.area(8).enemies >= 1 & partycheck ~= 2'},
---{'Shining Force', 'spell(Fade).cooldown > 0 & spell(Psychic Scream).cooldown > 0 & area(10).enemies >= 1 & aggro & !toggle(xDPS) & partycheck ~= 2', 'player'},
---{'!Shining Force', 'toggle(interrupts) & target.interruptAt(70) & target.range > 10 & !lowest.health <= UI(l_mend)', 'tank'},
---{'!Shining Force', 'toggle(interrupts) & target.interruptAt(70) & target.range <= 10 & !lowest.health <= UI(l_mend)', 'player'},
---{Felexplosive},
---{Keybinds},
---{Trinkets},
---{Rapture, 'player.buff(Rapture)'}, --全神贯注
+{Stopcasting},
+{Potions},
+{Cooldowns},
+{'!Purify', 'toggle(disp) & player.spell(Purify).cooldown == 0 & purify & area(8).friendly == 1 & range <= 40', 'friendly'},
+{'%dispelall', 'toggle(disp) & spell(Purify).cooldown == 0)'},
+{'fade', '{target.inmelee || player.area(2).enemies >= 1} & player.aggro & !partycheck == 1'},
+{'Psychic Scream', 'player.spell(Fade).cooldown > 0 & player.aggro & !toggle(xDPS) & player.area(8).enemies >= 1 & partycheck ~= 2'},
+{'Shining Force', 'spell(Fade).cooldown > 0 & spell(Psychic Scream).cooldown > 0 & area(10).enemies >= 1 & aggro & !toggle(xDPS) & partycheck ~= 2', 'player'},
+{'!Shining Force', 'toggle(interrupts) & target.interruptAt(70) & target.range > 10 & !lowest.health <= UI(l_mend)', 'tank'},
+{'!Shining Force', 'toggle(interrupts) & target.interruptAt(70) & target.range <= 10 & !lowest.health <= UI(l_mend)', 'player'},
+{Felexplosive},
+{Keybinds},
+{Trinkets},
+{Rapture, 'player.buff(Rapture)'}, --全神贯注
 {
   {
     {Moving, 'player.moving'},         --战斗中移动buff处理
