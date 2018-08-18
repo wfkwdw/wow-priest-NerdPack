@@ -149,5 +149,6 @@ yobleed.spell_ids = {
   ["Glyph of Shadowy Friends"] = 126745,
   ["Divine Star"]              = 110744,
   ["Guiding Hand"]             = 242622,
+  ["Evangelism"]               = 246287,   --福音
                    
 }
