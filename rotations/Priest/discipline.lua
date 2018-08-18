@@ -445,113 +445,39 @@ local Stopcasting = {
 }
 
 
-local OutOfCombat={
-  --友好的功能：看见谁血不多奶两口
-  --buff监测
-  --死人监测
-  --血量低于设置值自动下马
-  --自动驱散
-  --低血量刷血
-  --低血量吃糖 吃药
-  --
-}
-
-
-local SelfProtection={
-  
-}
-
-
-
-local inCombat2={
---根据条件使用物品
-  --治疗石 5512. 当我个人血量低于设置值且我有治疗石的时候使用治疗石
-  {'#5512', 'item(5512).usable&item(5512).count>0&player.health<=UI(HS_spin)&UI(HS_check)'},
-  --海滨治疗药水. 当我个人血量低于设置值且我有大红的时候使用治疗石
-  {'#152494', 'item(152494).usable&item(152494).count>0&player.health<=UI(AHP_spin)&UI(AHP_check)'},
-  --海滨活力药水.
-  {'#163082', 'item(163082).usable&item(163082).count>0&player.health<=UI(AsHP_spin)&UI(AsHP_check)'},
-  --海滨法力药水.当我个人蓝量低于设置值且我有大蓝的时候使用大蓝
-  {'#152495', 'item(152495).usable&item(152495).count>0&player.mana<=UI(AMP_spin)&UI(AMP_check)'},
---根据条件保命
---根据条件驱散
---根据条件加血
---根据条件救赎加血
---[[救赎的治疗构成：
-1.救赎转化的伤害治疗
-2.惩击的吸收
-3.盾的吸收
-]]
---进攻
-
-}
-
-
-
-
-
-
-
-
-
-
-
 local inCombat = {
-
-
-{Stopcasting},
-{Potions},
-{Cooldowns},
-{'!Purify', 'toggle(disp) & player.spell(Purify).cooldown == 0 & purify & area(8).friendly == 1 & UI(disp_ang) & range <= 40', 'friendly'},
-{'%dispelall', 'toggle(disp) & spell(Purify).cooldown == 0 & !UI(disp_ang)'},
-{'fade', '{target.inmelee || player.area(2).enemies >= 1} & player.aggro & !partycheck == 1'},
-{'Psychic Scream', 'player.spell(Fade).cooldown > 0 & player.aggro & !toggle(xDPS) & player.area(8).enemies >= 1 & partycheck ~= 2'},
-{'Shining Force', 'spell(Fade).cooldown > 0 & spell(Psychic Scream).cooldown > 0 & area(10).enemies >= 1 & aggro & !toggle(xDPS) & partycheck ~= 2', 'player'},
-{'!Shining Force', 'toggle(interrupts) & target.interruptAt(70) & target.range > 10 & !lowest.health <= UI(l_mend)', 'tank'},
-{'!Shining Force', 'toggle(interrupts) & target.interruptAt(70) & target.range <= 10 & !lowest.health <= UI(l_mend)', 'player'},
-{'Arcane Torrent', 'player.mana < 97 & UI(dps_at)', 'player'},
-{Felexplosive},
-{Keybinds},
-{Trinkets},
-{Rapture, 'player.buff(Rapture)'}, --全神贯注
-{{
-{Moving, 'player.moving'},         --战斗中移动buff处理
-{Rampup, 'toggle(ramp)'},          --预救赎
-{Solo, 'toggle(xDPS)'},            --单人模式处理
-{PWR, 'UI(PWR) & !tank.health <= 30'},   --真言术耀处理
-{Mythic, 'partycheck == 2 & UI(myth_heal)'}, 
-{ST, '!UI(myth_heal)'},
-},'!player.buff(Rapture)'},
-{Atonement, '!lowest.health <= UI(l_mend) || {UI(myth_heal) & !lowest.health <= 65}'},
+--{Stopcasting},
+--{Potions},
+--{Cooldowns},
+--{'!Purify', 'toggle(disp) & player.spell(Purify).cooldown == 0 & purify & area(8).friendly == 1 & range <= 40', 'friendly'},
+--{'%dispelall', 'toggle(disp) & spell(Purify).cooldown == 0)'},
+--{'fade', '{target.inmelee || player.area(2).enemies >= 1} & player.aggro & !partycheck == 1'},
+--{'Psychic Scream', 'player.spell(Fade).cooldown > 0 & player.aggro & !toggle(xDPS) & player.area(8).enemies >= 1 & partycheck ~= 2'},
+--{'Shining Force', 'spell(Fade).cooldown > 0 & spell(Psychic Scream).cooldown > 0 & area(10).enemies >= 1 & aggro & !toggle(xDPS) & partycheck ~= 2', 'player'},
+--{'!Shining Force', 'toggle(interrupts) & target.interruptAt(70) & target.range > 10 & !lowest.health <= UI(l_mend)', 'tank'},
+--{'!Shining Force', 'toggle(interrupts) & target.interruptAt(70) & target.range <= 10 & !lowest.health <= UI(l_mend)', 'player'},
+--{Felexplosive},
+--{Keybinds},
+--{Trinkets},
+--{Rapture, 'player.buff(Rapture)'}, --全神贯注
+{
+  {
+    {Moving, 'player.moving'},         --战斗中移动buff处理
+    {Rampup, 'toggle(ramp)'},          --预救赎
+    {Solo, 'toggle(xDPS)'},            --单人模式处理
+    {PWR, 'UI(PWR) & !tank.health <= 30'},   --真言术耀处理
+    {Mythic, 'partycheck == 2 & UI(myth_heal)'}, --当队伍模式且启用神级治疗时启用队伍治疗
+    {ST, '!UI(myth_heal)'},
+},
+  '!player.buff(Rapture)'},
+  {Atonement, '!lowest.health <= UI(l_mend) || {UI(myth_heal) & !lowest.health <= 65}'},
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 local outCombat = {
 
 {'!/stopcasting','debuff(Quake).any.duration <= gcd & debuff(Quake).any','player'}, --Quaking 
-{'%dispelall', 'toggle(disp) & spell(Purify).cooldown == 0 & !UI(disp_ang)'},
+{'%dispelall', 'toggle(disp) & spell(Purify).cooldown == 0 '},
 {'%ressdead(Mass Resurrection)', 'UI(rezz)'},
 {Beforepull,'pull_timer >= 1'},
 {Keybinds},
