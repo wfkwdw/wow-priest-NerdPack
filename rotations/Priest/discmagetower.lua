@@ -1,4 +1,4 @@
---count.friendly.buffs(Plea)
+-- count.friendly.buffs(Plea)
 -- Counts how many units have the buff
 -- USAGE: count(BUFF).buffs > = #
 -- {type='checkspin', text='something', desc='something something', key='KEY', spin=80, check=true}
