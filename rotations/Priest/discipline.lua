@@ -1,6 +1,8 @@
 local _, yobleed = ...
 local NeP = NeP
-
+--总是给T不停套路你给玩家也是重复盾
+--耀乱放
+--T不打惩击 不打慰 苦修没打好 关于苦修的2个buff 狂套盾好JB烦
 --count.friendly.buffs(Plea)
 -- Counts how many units have the buff
 -- USAGE: count(BUFF).buffs > = #
@@ -192,7 +194,7 @@ local PWR = {
 --CD好了就用的东西？
 local Cooldowns = {
 --Automatic Shadowfiend.
-{'!Shadowfiend', 'UI(SF) & !talent(3,2) || partycheck == 2','target'}, --天赋已修正
+{'!Shadowfiend', 'UI(SF) & !talent(3,2) || group.type == 2','target'}, --天赋已修正
 --摧心魔 if mana is below or if 90%.
 {'Mindbender', 'talent(3,2) & player.mana <= UI(MB_spin) & UI(MB)', 'target'}, --天赋已修正
 --痛苦压制 if tank health is below or equal to 20% and checked.
@@ -232,14 +234,15 @@ local Potions = {
   --海滨活力药水.
   {'#163082', 'item(163082).usable & item(163082).count>0 & player.health<=UI(AsHP_spin) & UI(AsHP_check)'},
   --海滨法力药水.
-  --{'#152495', 'item(152495).usable & item(152495).count>0 & player.mana<=UI(AMP_spin) & UI(AMP_check)'},
+  --player.mana法力值无法检测 原因未知，已屏蔽自动喝法力药水的功能
+  --{'#152495', 'item(152495).usable & item(152495).count>0 & player.mana<=UI(AMP_spin) & UI(AMP_check)'}, 
 }
 
 --升腾系列？
 local Rampup = {
 --Spreading Atonement before DPS if checked.
-{'!Evangelism', 'buff(Sins of the Many).count >= 12  & partycheck == 3','player'},
-{'!Evangelism', 'buff(Sins of the Many).count == 5  & partycheck == 2','player'},
+{'!Evangelism', 'buff(Sins of the Many).count >= 12  & group.type == 3','player'},
+{'!Evangelism', 'buff(Sins of the Many).count == 5  & group.type == 2','player'},
 {'Power Word: Radiance', '!buff(Atonement)', {'lowest','friendly'}},
 {'Power Word: Shield', '!buff(Atonement)',{'lowest','friendly'}},
 
@@ -248,23 +251,23 @@ local Rampup = {
 
 local Solo = {
 
-{'Power Word: Radiance', 'partycheck == 2 & area(30).friendly >= 4 & target.is(target) & target.health.actual >= 617526 & buff(Sins of the Many).count < 5', 'player'},
+{'Power Word: Radiance', 'group.type == 2 & area(30).friendly >= 4 & target.is(target) & target.health.actual >= 617526 & buff(Sins of the Many).count < 5', 'player'},
 
 --PWS if player health is below or if UI value.
 {'Power Word: Shield', 'Health <= UI(full_PWS) & !buff(Power Word: Shield)', 'player'},
 --Schism on cooldown 教派分歧.
 --天赋已更新
-{'Schism', "talent(1,3) & {!player.moving || player.buff(Norgannon's Foresight)}", 'target'},
+{'Schism', "talent(1,3) & {!player.moving}", 'target'},
 --Shadowfiend on CD if toggled.
 {'Shadowfiend', '!talent(3,2)', 'target'},
 --Shadow Mend if player health is below or if UI value.
-{'Shadow Mend', "player.health <= UI(full_mend) & {!player.moving || player.buff(Norgannon's Foresight)}", 'player'},
+{'Shadow Mend', "player.health <= UI(full_mend) & {!player.moving}", 'player'},
 --Purge the Wicked if talent and not on target. 
 --净化邪恶 天赋已更新
 {'Purge the Wicked', ' talent(6,1) & !debuff(Purge the Wicked) & !player.spell(Penance).cooldown == 0 & range <= 40 & combat & toggle(AOE)', 'enemies'},
 {'Purge the Wicked', 'talent(6,1) & !debuff(Purge the Wicked)', 'target'},
 --Shadow Word: Pain if not on target.
-{'Shadow Word: Pain', '!talent(6,1) & !debuff(Shadow Word: Pain) & range <= 40 & combat & !player.spell(Penance).cooldown < gcd & toggle(AOE) & {{ttd >= 20 & partycheck = 3}||partycheck ~= 3}', 'enemies'},
+{'Shadow Word: Pain', '!talent(6,1) & !debuff(Shadow Word: Pain) & range <= 40 & combat & !player.spell(Penance).cooldown < gcd & toggle(AOE) & {{ttd >= 20 & group.type = 3}||group.type ~= 3}', 'enemies'},
 {'Shadow Word: Pain', '!talent(6,1) & !debuff(Shadow Word: Pain)', 'target'},
 --Penance on cooldown if target has Purge the Wicked or Shadow Word: Pain.
 --苦修
@@ -276,7 +279,7 @@ local Solo = {
 {'Divine Star', 'talent(6,2) & player.area(24).enemies.infront >= 3 & toggle(AOE)'},
 --Divine Star if moving.
 {'Divine Star', 'talent(6,2) & player.area(24).enemies.infront >= 1 & moving'},
---Smite on CD.
+--先惩击没有惩击debuff的 再惩击有debuff的
 {'Smite', 'infront', 'target'},
 }
 
@@ -284,13 +287,13 @@ local Solo = {
 --下面功能天赋已更新
 local Atonement = {
 --Purge the Wicked if talent and not on target.
-{'Purge the Wicked', ' talent(6,1) & !debuff(Purge the Wicked) & count(Purge the Wicked).enemies.debuffs < UI(ato_potw) & !player.spell(Penance).cooldown == 0 & range <= 40 & combat & !player.spell(Penance).cooldown < gcd & toggle(AOE) & {{ttd >= 20 & partycheck = 3}||partycheck ~= 3}', 'enemies'},
+{'Purge the Wicked', ' talent(6,1) & !debuff(Purge the Wicked) & count(Purge the Wicked).enemies.debuffs < UI(ato_potw) & !player.spell(Penance).cooldown == 0 & range <= 40 & combat & !player.spell(Penance).cooldown < gcd & toggle(AOE) & {{ttd >= 20 & group.type = 3}||group.type ~= 3}', 'enemies'},
 {'Purge the Wicked', ' talent(6,1) & !debuff(Purge the Wicked)', 'target'},
 --Shadow Word: Pain if not on target.
-{'Shadow Word: Pain', '!talent(6,1) & !debuff(Shadow Word: Pain) & count(Shadow Word: Pain).enemies.debuffs < UI(ato_potw) & range <= 40 & combat & !player.spell(Penance).cooldown < gcd & toggle(AOE) & {{ttd >= 20 & partycheck = 3}||partycheck ~= 3}', 'enemies'},
+{'Shadow Word: Pain', '!talent(6,1) & !debuff(Shadow Word: Pain) & count(Shadow Word: Pain).enemies.debuffs < UI(ato_potw) & range <= 40 & combat & !player.spell(Penance).cooldown < gcd & toggle(AOE) & {{ttd >= 20 & group.type = 3}||group.type ~= 3}', 'enemies'},
 {'Shadow Word: Pain', '!talent(6,1) & !debuff(Shadow Word: Pain)', 'target'},
 --Schism on cooldown.
-{'Schism', "talent(1,3) & {!moving || player.buff(Norgannon's Foresight)}", 'target'},
+{'Schism', "talent(1,3) & {!moving}", 'target'},
 --Penance on cooldown if target has Purge the Wicked or Shadow Word: Pain.
 {'Penance', '{target.debuff(Purge the Wicked)||!talent(6,1)} & count(Atonement).friendly.buffs >= UI(ato_penato) & lowest.health <= UI(ato_penhealth)', 'target'},
 --Power Word: Solace on cooldown if talent.
@@ -300,7 +303,7 @@ local Atonement = {
 --Mind Control
 {'Mind Control', 'talent(4,2) & !creatureType(Demon) & !creatureType(Mechanical) & !creatureType(Undead) & !creatureType(Aberration) & combat & toggle(control) & !boss','enemies'},
 --Smite on CD.
-{'Smite', 'infront & count(Atonement).friendly.buffs >= UI(ato_smiteato) & lowest.health <= UI(ato_smitehealth)', 'target'}, --& {{partycheck = 3 & player.buff(Sins of the Many).count >= 5}||partycheck ~= 3}
+{'Smite', 'infront & count(Atonement).friendly.buffs >= UI(ato_smiteato) & lowest.health <= UI(ato_smitehealth)', 'target'}, 
 
 }
 
@@ -310,7 +313,7 @@ local Tankpred = {
 --Penance on cooldown if target has Purge the Wicked or Shadow Word: Pain.
 {'Penance', 'lowest(tank).health.predicted <= UI(t_mend) & lowest(tank).buff(Atonement) & infront', 'target'},
 --Shadow Mend on UI value if PWS don't make it.
-{'Shadow Mend', "health.predicted <= UI(t_mend) & {!player.moving || player.buff(Norgannon's Foresight)}", 'lowest(tank)'},
+{'Shadow Mend', "health.predicted <= UI(t_mend) & {!player.moving}", 'lowest(tank)'},
 }
 
 local Tank = {
@@ -319,14 +322,14 @@ local Tank = {
 --Penance on cooldown if target has Purge the Wicked or Shadow Word: Pain.
 {'Penance', 'lowest(tank).health <= UI(t_mend) & lowest(tank).buff(Atonement) & infront', 'target'},
 --Shadow Mend on UI value if PWS don't make it.
-{'Shadow Mend', "health <= UI(t_mend) & {!player.moving || player.buff(Norgannon's Foresight)}", 'lowest(tank)'},
+{'Shadow Mend', "health <= UI(t_mend) & {!player.moving}", 'lowest(tank)'},
 }
 
 local Playerpred = {
 --Penance on cooldown if target has Purge the Wicked or Shadow Word: Pain.
 {'Penance', 'player.health.predicted <= UI(p_mend) & player.buff(Atonement) & infront', 'target'},
 --Shadow Mend on UI value if PWS don't make it.
-{'Shadow Mend', "health.predicted <= UI(p_mend) & {!moving || buff(Norgannon's Foresight)}", 'player'},
+{'Shadow Mend', "health.predicted <= UI(p_mend) & {!moving}", 'player'},
 --Halo if player has talent and at least 4 or more people within a 30yd range are below or equal to 85% health.
 {'Halo','talent(6,3) & player.area(30, 90).heal >= 4 & toggle(AOE) & !toggle(xDPS)'},
 --Divine Star if player has talent and at least 1 enemy is in front with a range of 24yds and at least 3 or higher players with health below or equal to 95% are in front with a range of 24yds.
@@ -339,7 +342,7 @@ local Player = {
 --Penance on cooldown if target has Purge the Wicked or Shadow Word: Pain.
 {'Penance', 'player.health<= UI(p_mend) & player.buff(Atonement) & infront', 'target'},
 --Shadow Mend on UI value if PWS don't make it.
-{'Shadow Mend', "health <= UI(p_mend) & {!moving || buff(Norgannon's Foresight)}", 'player'},
+{'Shadow Mend', "health <= UI(p_mend) & {!moving}", 'player'},
 --Halo if player has talent and at least 4 or more people within a 30yd range are below or equal to 85% health.
 {'Halo','talent(6,3) & player.area(30, 90).heal >= 4 & toggle(AOE) & !toggle(xDPS)'},
 --Divine Star if player has talent and at least 1 enemy is in front with a range of 24yds and at least 3 or higher players with health below or equal to 95% are in front with a range of 24yds.
@@ -349,9 +352,9 @@ local Player = {
 }
 
 local Lowestpred = {
---Shadow Covenant if lowest and 5 or more at 30yds are below 90%.
+--30码内有5个或更多的人血量低于90%使用 暗影契约
 {'Shadow Covenant', 'area(30,90).heal >= 5 & !debuff(Shadow Covenant) & !count(Shadow Covenant).friendly.debuffs >= 10 & UI(SC_check) & health <= UI(SC_spin)','lowestp'},
---Power Word: Shield if tank doesn't have atonement or if tank doesnt have PWS.
+--T的盾与救赎全程保持.
 {'Power Word: Shield', '!buff(Power Word: Shield)', 'lowest(tank)'},
 --Power Word: Shield on UI value if Atonement won't make it or if not Atonement.
 {'Power Word: Shield', 'health <= UI(l_PWS) & !buff(Power Word: Shield) & !is(player)', 'lowest'},
@@ -360,7 +363,7 @@ local Lowestpred = {
 --Penance on cooldown if target has Purge the Wicked or Shadow Word: Pain.
 {'Penance', 'lowestp.health <= UI(l_mend) & lowestp.buff(Atonement) & !lowestp.health <= 30 & infront', 'target'},
 --Shadow Mend on UI value if PWS don't make it.
-{'Shadow Mend', "health <= UI(l_mend) & {!player.moving || player.buff(Norgannon's Foresight)}", 'lowestp'},
+{'Shadow Mend', "health <= UI(l_mend) & {!player.moving}", 'lowestp'},
 
 
 --Power Word: Shield on CD if not Atonement on 6 people max.
@@ -379,7 +382,7 @@ local Lowest = {
 --Penance on cooldown if target has Purge the Wicked or Shadow Word: Pain.
 {'Penance', 'lowest.health <= UI(l_mend) & lowest.buff(Atonement) & !lowest.health <= 30 & infront', 'target'},
 --Shadow Mend on UI value if PWS don't make it.
-{'Shadow Mend', "health <= UI(l_mend) & {!player.moving || player.buff(Norgannon's Foresight)}", 'lowest'},
+{'Shadow Mend', "health <= UI(l_mend) & {!player.moving}", 'lowest'},
 
 
 --Power Word: Shield on CD if not Atonement on 6 people max.
@@ -399,9 +402,9 @@ local Mythic = {
 {'Shadow Covenant', 'area(30,90).heal >= 3 & !debuff(Shadow Covenant) & !count(Shadow Covenant).friendly.debuffs >= 4 & UI(SC_check) & health <= UI(SC_spin)', 'lowest'},
 {'Power Word: Shield', 'health <= 90 & !buff(Power Word: Shield)', 'lowest'},
 {'Penance', 'player.health <= 65 & player.buff(Atonement) & infront', 'target'},
-{'Shadow Mend', "health <= 65 & {!moving || buff(Norgannon's Foresight)}", 'player'},
+{'Shadow Mend', "health <= 65 & {!moving}", 'player'},
 {'Penance', 'lowest.health <= 65 & lowest.buff(Atonement) & infront', 'target'},
-{'Shadow Mend', "health <= 70 & {!player.moving || player.buff(Norgannon's Foresight)}", 'lowest'},
+{'Shadow Mend', "health <= 70 & {!player.moving}", 'lowest'},
 
 }
 local Moving = {
@@ -429,8 +432,8 @@ local Party = {
 }
 
 local ST = {
-{Raid,'partycheck == 3'},
-{Party, 'partycheck == 2'},
+{Raid,'group.type == 3'},
+{Party, 'group.type == 2'},
 }
 
 --拉怪前吃个延时之力 目前分析到这里180818
@@ -451,9 +454,9 @@ local inCombat = {
 {Cooldowns},
 {'!Purify', 'toggle(disp) & player.spell(Purify).cooldown == 0 & purify & area(8).friendly == 1 & range <= 40', 'friendly'},
 {'%dispelall', 'toggle(disp) & spell(Purify).cooldown == 0)'},
-{'fade', '{target.inmelee || player.area(2).enemies >= 1} & player.aggro & !partycheck == 1'},
-{'Psychic Scream', 'player.spell(Fade).cooldown > 0 & player.aggro & !toggle(xDPS) & player.area(8).enemies >= 1 & partycheck ~= 2'},
-{'Shining Force', 'spell(Fade).cooldown > 0 & spell(Psychic Scream).cooldown > 0 & area(10).enemies >= 1 & aggro & !toggle(xDPS) & partycheck ~= 2', 'player'},
+{'fade', '{target.inmelee || player.area(2).enemies >= 1} & player.aggro & !group.type == 1'},
+{'Psychic Scream', 'player.spell(Fade).cooldown > 0 & player.aggro & !toggle(xDPS) & player.area(8).enemies >= 1 & group.type ~= 2'},
+{'Shining Force', 'spell(Fade).cooldown > 0 & spell(Psychic Scream).cooldown > 0 & area(10).enemies >= 1 & aggro & !toggle(xDPS) & group.type ~= 2', 'player'},
 {'!Shining Force', 'toggle(interrupts) & target.interruptAt(70) & target.range > 10 & !lowest.health <= UI(l_mend)', 'tank'},
 {'!Shining Force', 'toggle(interrupts) & target.interruptAt(70) & target.range <= 10 & !lowest.health <= UI(l_mend)', 'player'},
 {Felexplosive},
@@ -466,11 +469,57 @@ local inCombat = {
     {Rampup, 'toggle(ramp)'},          --预救赎
     {Solo, 'toggle(xDPS)'},            --单人模式处理
     {PWR, 'UI(PWR) & !tank.health <= 30'},   --真言术耀处理
-    {Mythic, 'partycheck == 2 & UI(myth_heal)'}, --当队伍模式且启用神级治疗时启用队伍治疗
+    {Mythic, 'group.type == 2 & UI(myth_heal)'}, --当队伍模式且启用神级治疗时启用队伍治疗
     {ST, '!UI(myth_heal)'},
 },
   '!player.buff(Rapture)'},
   {Atonement, '!lowest.health <= UI(l_mend) || {UI(myth_heal) & !lowest.health <= 65}'},
+}
+
+--单人模式战斗外处理
+local  outCombat_Solo = {
+
+--debuff处理
+
+--buff管理 ：一个耐力
+
+--药水管理 寻宝药水
+
+--物品管理:自动复活玩具，各种玩具轮流来好了。
+
+--食物管理 烹饪或者普通食物
+
+--血量管理 有蓝就刷，没蓝就吃，吃完再刷。
+
+--保命策略 防摔死 自动水上坐骑什么的 
+
+}
+
+--单人模式战斗中处理
+local inCombat_Solo={
+--加个PVP开关，单人模式最好全程PVP支持
+--debuff处理
+
+--buff管理 ：一个耐力
+
+--药水管理 治疗药水
+
+--物品管理:糖 自动复活玩具，各种玩具轮流来好了。
+
+--食物管理 烹饪或者普通食物
+
+--救赎管理
+
+--主动治疗管理
+
+--保命策略 防摔死 猝死
+
+--主动攻击 AOE，见怪就打等。
+
+
+
+
+
 }
 
 
@@ -484,18 +533,18 @@ local outCombat = {
 {Moving, 'player.moving & !UI(ato) & !inareaid == 1040'},
   --给自己加个耐
 {'Power Word: Fortitude','!buff(Power Word: Fortitude)','player'},
-{'!Evangelism', 'buff(Sins of the Many).count >= 12  & partycheck == 3 & pull_timer <= 20 & pull_timer >= 1 & UI(PWR_PPull)','player'},
-{'!Evangelism', 'buff(Sins of the Many).count == 5 & partycheck == 2 & pull_timer <= 20 & pull_timer >= 1 & UI(PWR_PPull)','player'},
-{Mythic, 'partycheck == 2 & UI(myth_heal)'},
+{'!Evangelism', 'buff(Sins of the Many).count >= 12  & group.type == 3 & pull_timer <= 20 & pull_timer >= 1 & UI(PWR_PPull)','player'},
+{'!Evangelism', 'buff(Sins of the Many).count == 5 & group.type == 2 & pull_timer <= 20 & pull_timer >= 1 & UI(PWR_PPull)','player'},
+{Mythic, 'group.type == 2 & UI(myth_heal)'},
 {{
-{'Shadow Mend', "lowest.health <= 90 & {!player.moving || player.buff(Norgannon's Foresight)}", 'lowest'},
+{'Shadow Mend', "lowest.health <= 90 & {!player.moving}", 'lowest'},
 },'UI(ooc_heal)||UI(myth_heal)'},
 {{
 {'Power Word: Shield', '!tank.buff(Power Word: Shield)', 'tank'},
 {Moving, 'player.moving'},
 
 }, 'UI(ato)||UI(myth_heal)'},
-{Mythic, 'partycheck == 2 & UI(myth_heal)'},
+{Mythic, 'group.type == 2 & UI(myth_heal)'},
 }
 
 local blacklist = {
