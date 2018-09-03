@@ -267,7 +267,7 @@ local Solo = {
 {'Purge the Wicked', ' talent(6,1) & !debuff(Purge the Wicked) & !player.spell(Penance).cooldown == 0 & range <= 40 & combat & toggle(AOE)', 'enemies'},
 {'Purge the Wicked', 'talent(6,1) & !debuff(Purge the Wicked)', 'target'},
 --Shadow Word: Pain if not on target.
-{'Shadow Word: Pain', '!talent(6,1) & !debuff(Shadow Word: Pain) & range <= 40 & combat & !player.spell(Penance).cooldown < gcd & toggle(AOE) & {{ttd >= 20 & group.type = 3}||group.type ~= 3}', 'enemies'},
+{'Shadow Word: Pain', '!talent(6,1) & !debuff(Shadow Word: Pain) & range <= 40 & combat & !player.spell(Penance).cooldown < gcd & toggle(AOE) & {{ttd >= 20 & group.type == 3}||group.type ~= 3}', 'enemies'},
 {'Shadow Word: Pain', '!talent(6,1) & !debuff(Shadow Word: Pain)', 'target'},
 --Penance on cooldown if target has Purge the Wicked or Shadow Word: Pain.
 --苦修
@@ -316,10 +316,11 @@ local Tankpred = {
 {'Shadow Mend', "health.predicted <= UI(t_mend) & {!player.moving}", 'lowest(tank)'},
 }
 
+--队伍模式坦克治疗
 local Tank = {
---Power Word: Shield if tank doesn't have atonement or if tank doesnt have PWS.
+--T全程盾保持
 {'Power Word: Shield', '!buff(Power Word: Shield)', 'lowest(tank)'},
---Penance on cooldown if target has Purge the Wicked or Shadow Word: Pain.
+--苦修怪物
 {'Penance', 'lowest(tank).health <= UI(t_mend) & lowest(tank).buff(Atonement) & infront', 'target'},
 --Shadow Mend on UI value if PWS don't make it.
 {'Shadow Mend', "health <= UI(t_mend) & {!player.moving}", 'lowest(tank)'},
@@ -389,21 +390,30 @@ local Lowest = {
 {'Power Word: Shield', '!buff(Atonement)', {'lowest(tank)', 'lowest1', 'lowest2', 'lowest3', 'lowest4', 'lowest5'}},
 }
 
+--队伍治疗的第二个版本 这个逻辑一般
 local Mythic = {
+  --痛苦压制
 {'!Pain Suppression', 'health <= 20', {'tank','lowest'}},
-
+--福音 
 {'!Evangelism', 'talent(7,3) & player.area(40,70).heal >= 2 & buff(Sins of the Many).count >= 4 & lowest.buff(Atonement)','player'},
+--暗影魔
 {'!Shadowfiend', "player.spell(!talent(3,2)",'target'},
+--真言术：耀
 {'Power Word: Radiance', 'area(30,85).heal >= 3 & health <= 85 & !buff(Atonement) & advanced & player.spell(Power Word: Radiance).charges == 2', 'lowest'},
 {'Power Word: Radiance', 'player.area(40,85).heal >= 3 & health <= 85 & !buff(Atonement) & !advanced & player.spell(Power Word: Radiance).charges == 2', 'lowest'},
 {'Power Word: Radiance', 'area(30,85).heal >= 3 & lowest.health <= 85 & !buff(Atonement) & advanced & player.spell(Power Word: Radiance).charges < 2 & !player.lastcast(Power Word: Radiance)', 'lowest'},
 {'Power Word: Radiance', 'player.area(40,85).heal >= 3 & health <= 85 & !buff(Atonement) & !advanced & player.spell(Power Word: Radiance).charges < 2 & !player.lastcast(Power Word: Radiance)', 'lowest'},
 {'Power Word: Radiance', 'pull_timer <= 6 & pull_timer >= 3 & range <= 40', 'lowest'},
+--暗影契约
 {'Shadow Covenant', 'area(30,90).heal >= 3 & !debuff(Shadow Covenant) & !count(Shadow Covenant).friendly.debuffs >= 4 & UI(SC_check) & health <= UI(SC_spin)', 'lowest'},
+--真言术：盾
 {'Power Word: Shield', 'health <= 90 & !buff(Power Word: Shield)', 'lowest'},
+--苦修自己
 {'Penance', 'player.health <= 65 & player.buff(Atonement) & infront', 'target'},
 {'Shadow Mend', "health <= 65 & {!moving}", 'player'},
+--苦修最低血量
 {'Penance', 'lowest.health <= 65 & lowest.buff(Atonement) & infront', 'target'},
+--暗影愈合最低血量
 {'Shadow Mend', "health <= 70 & {!player.moving}", 'lowest'},
 
 }
@@ -448,7 +458,10 @@ local Stopcasting = {
 }
 
 
+
+--逻辑混乱
 local inCombat = {
+  {'Power Word: Fortitude','!buff(Power Word: Fortitude)','player'}, --实时监测自己的耐力，待优化为全团监控
 {Stopcasting},
 {Potions},
 {Cooldowns},
@@ -463,18 +476,84 @@ local inCombat = {
 {Keybinds},
 {Trinkets},
 {Rapture, 'player.buff(Rapture)'}, --全神贯注
-{
-  {
-    {Moving, 'player.moving'},         --战斗中移动buff处理
+{{{Moving, 'player.moving'},         --战斗中移动buff处理
     {Rampup, 'toggle(ramp)'},          --预救赎
     {Solo, 'toggle(xDPS)'},            --单人模式处理
     {PWR, 'UI(PWR) & !tank.health <= 30'},   --真言术耀处理
     {Mythic, 'group.type == 2 & UI(myth_heal)'}, --当队伍模式且启用神级治疗时启用队伍治疗
     {ST, '!UI(myth_heal)'},
 },
-  '!player.buff(Rapture)'},
-  {Atonement, '!lowest.health <= UI(l_mend) || {UI(myth_heal) & !lowest.health <= 65}'},
+  '!player.buff(Rapture)'}, --上面那一串就是说没有全身灌注buff的时候才操作。为了不浪费全神贯注那10秒
+{Atonement, '!lowest.health <= UI(l_mend) || {UI(myth_heal) & !lowest.health <= 65}'},
 }
+
+
+local CR_Prirest=
+{
+  {inCombat_Solo,'grouptype==1'},
+  {inCombat_Party,'grouptype==2'},
+  {inCombat_Raid,'grouptype==3'},
+}
+
+
+local inCombat_Solo={
+--PWS if player health is below or if UI value.
+{'Power Word: Shield', 'Health <= UI(full_PWS) & !buff(Power Word: Shield)', 'player'},
+--Schism on cooldown 教派分歧.
+--天赋已更新
+{'Schism', "talent(1,3) & {!player.moving}", 'target'},
+--Shadowfiend on CD if toggled.
+{'Shadowfiend', '!talent(3,2)', 'target'},
+--Shadow Mend if player health is below or if UI value.
+{'Shadow Mend', "player.health <= UI(full_mend) & {!player.moving}", 'player'},
+--Purge the Wicked if talent and not on target. 
+--净化邪恶 天赋已更新
+{'Purge the Wicked', ' talent(6,1) & !debuff(Purge the Wicked) & !player.spell(Penance).cooldown == 0 & range <= 40 & combat & toggle(AOE)', 'enemies'},
+{'Purge the Wicked', 'talent(6,1) & !debuff(Purge the Wicked)', 'target'},
+--Shadow Word: Pain if not on target.
+{'Shadow Word: Pain', '!talent(6,1) & !debuff(Shadow Word: Pain) & range <= 40 & combat & !player.spell(Penance).cooldown < gcd & toggle(AOE) & {{ttd >= 20 & group.type = 3}||group.type ~= 3}', 'enemies'},
+{'Shadow Word: Pain', '!talent(6,1) & !debuff(Shadow Word: Pain)', 'target'},
+--Penance on cooldown if target has Purge the Wicked or Shadow Word: Pain.
+--苦修
+{'Penance', '{target.debuff(Purge the Wicked) || target.debuff(Shadow Word: Pain)} & infront', 'target'},
+--真言术：慰 天赋已更新
+{'Power Word: Solace', 'talent(3,3)', 'target'},
+--Divine Star if mobs are 3 or more.
+--神圣之星 天赋已更新
+{'Divine Star', 'talent(6,2) & player.area(24).enemies.infront >= 3 & toggle(AOE)'},
+--Divine Star if moving.
+{'Divine Star', 'talent(6,2) & player.area(24).enemies.infront >= 1 & moving'},
+--先惩击没有惩击debuff的 再惩击有debuff的
+{'Smite', 'infront', 'target'},
+}
+
+local inCombat_Party={
+
+}
+
+local inCombat_Raid={
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 --单人模式战斗外处理
 local  outCombat_Solo = {

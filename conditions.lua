@@ -168,9 +168,9 @@ end)
 ----------------------------------------------------------------------------------
 -----------------------------------PURIFY DISPELLING-------------------------------------------
 ----------------------------------------------------------------------------------
--- purify
---/dump NeP.DSL:Get('purify')()
-NeP.DSL:Register('purify', function(target)
+-- purify 移除魔法和疾病
+--/dump NeP.DSL:Get('checkpurify')()
+NeP.DSL:Register('checkpurify', function(target)
 --priest
   for i = 1,40 do
   local debuff,_,_,count,dispeltype,duration,expires = UnitDebuff(target, i)
@@ -181,3 +181,8 @@ NeP.DSL:Register('purify', function(target)
     end
   end
 end)
+
+
+
+
+

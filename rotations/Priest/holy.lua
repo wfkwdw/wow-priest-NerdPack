@@ -164,8 +164,8 @@ local Cooldowns = {
 }
 
 local Guidinghand = {
-{'#147007', '!buff(Guiding Hand) & health > 60 & player.equipped(147007) & partycheck == 3', {'tank1','tank2'}}, -- Deceiver's Grand Design
-{'#147007', '!buff(Guiding Hand) & health > 60 & player.equipped(147007) & partycheck == 2', {'tank1','player'}},
+{'#147007', '!buff(Guiding Hand) & health > 60 & player.equipped(147007) & group.type == 3', {'tank1','tank2'}}, -- Deceiver's Grand Design
+{'#147007', '!buff(Guiding Hand) & health > 60 & player.equipped(147007) & group.type == 2', {'tank1','player'}},
 }
 local Archive = {
 {'#147006', 'health <= 50 & !player.moving & equipped(147006) & {player.spell(Holy Word: Serenity).cooldown > gcd || player.mana <= 5}', {'lowest(tank)','lowest'}},
@@ -273,9 +273,9 @@ local Solo = {
 }
 
 local PoMooc = {
-{'Prayer of Mending', 'buff(Prayer of Mending).duration <= 15 & partycheck == 3', {'tank1','tank2'}},
-{'Prayer of Mending', 'buff(Prayer of Mending).count < 5 & partycheck == 3', {'tank1','tank2'}},
-{'Prayer of Mending', '!buff(Prayer of Mending) & partycheck == 2', {'tank','player','lowest'}},
+{'Prayer of Mending', 'buff(Prayer of Mending).duration <= 15 & group.type == 3', {'tank1','tank2'}},
+{'Prayer of Mending', 'buff(Prayer of Mending).count < 5 & group.type == 3', {'tank1','tank2'}},
+{'Prayer of Mending', '!buff(Prayer of Mending) & group.type == 2', {'tank','player','lowest'}},
 }
 
 local Felexplosive = {
@@ -294,7 +294,7 @@ local Sanctify = {
 {'!Holy Word: Sanctify', 'area(10, 85).heal >= 4','lowest.ground'},
 {{
 {'!Holy Word: Sanctify', 'area(10, 85).heal >= 3','lowest.ground'},
-},'partycheck ~= 3 || set_bonus(T20)= 4'},
+},'group.type ~= 3 || set_bonus(T20)= 4'},
 }
 
 
@@ -339,7 +339,7 @@ local AOE = {
 {'!Prayer of Healing', 'area(20, 85).heal >= 5 & {player.buff(Power of the Naaru) || player.buff(Divinity)}', 'lowest'},
 {'!Prayer of Healing', 'area(25, 85).heal >= 5 & {player.buff(Power of the Naaru) || player.buff(Divinity)}', 'lowest'},
 {'!Prayer of Healing', 'area(30, 85).heal >= 5 & {player.buff(Power of the Naaru) || player.buff(Divinity)}', 'lowest'},
-{'Prayer of Healing', 'area(40, 85).heal >= 4 & partycheck==2', 'lowest'},
+{'Prayer of Healing', 'area(40, 85).heal >= 4 & group.type==2', 'lowest'},
 }
 
 local Raid = {
@@ -353,7 +353,7 @@ local Raid = {
 local Mythic = {
 {'!Holy Word: Sanctify', 'area(10, 90).heal >= 3 & range <= 40 & !player.buff(Divinity)','lowest.ground'},
 {'Prayer of Healing', 'area(40, 85).heal >= 4', 'lowest'},
-{'Prayer of Mending', 'health > 95 & !player.moving & !buff(Prayer of Mending) & partycheck ~=3', {'tank1','tank2','lowest','player'}},
+{'Prayer of Mending', 'health > 95 & !player.moving & !buff(Prayer of Mending) & group.type ~=3', {'tank1','tank2','lowest','player'}},
 {'Flash Heal', 'player.buff(Surge of Light) & player.buff(Surge of Light).duration <= 3 & health < 100', 'lowest'},
 {'Renew', '!buff(Renew) & player.moving', 'lowest'},
 {'Renew', '!buff(Renew) & player.moving', 'friendly'},
@@ -381,7 +381,7 @@ local inCombat = {
 {'!/stopcasting','debuff(Quake).any.duration <= gcd & debuff(Quake).any','player'}, --Quaking 
 {'!Purify', 'toggle(disp) & player.spell(Purify).cooldown == 0 & purify & area(8).friendly == 1 & UI(disp_ang) & range <= 40', 'friendly'},
 {'%dispelall', 'toggle(disp) & spell(Purify).cooldown == 0 & !UI(disp_ang)'},
-{'fade', '{target.inmelee || player.area(2).enemies >= 1} & player.aggro & !partycheck == 1'},
+{'fade', '{target.inmelee || player.area(2).enemies >= 1} & player.aggro & !group.type == 1'},
 {'/cast [@player] Angelic Feather', 'movingfor >= 2 & !buff(Angelic Feather) & spell(Angelic Feather).charges >= 1 & UI(m_AF)', 'player'},
 {'Body and Mind', 'movingfor >= 2 & !buff(Body And Mind) & UI(m_Body)', 'player'},
 {Felexplosive},
@@ -395,10 +395,10 @@ local inCombat = {
 {AOE,'toggle(AOE) & !UI(myth_heal)'},
 {Spirit,'player.buff(Spirit of Redemption)'},
 {{
-{Raid,'partycheck == 3'},
-{Mythic,'partycheck == 2 & UI(myth_heal)'},
-{Party,'partycheck == 2 & !UI(myth_heal)'},
-{Solo,'partycheck == 1 || toggle(xDPS)'},
+{Raid,'group.type == 3'},
+{Mythic,'group.type == 2 & UI(myth_heal)'},
+{Party,'group.type == 2 & !UI(myth_heal)'},
+{Solo,'group.type == 1 || toggle(xDPS)'},
 {DPS,'lowest.health > UI(l_FH)'},
 },'!player.buff(Spirit of Redemption)'},
 } 
@@ -411,14 +411,14 @@ local outCombat = {
 {'%dispelall', 'toggle(disp) & spell(Purify).cooldown == 0 & !UI(disp_ang)'},
 {'/cast [@player] Angelic Feather', 'movingfor >= 2 & !buff(Angelic Feather) & spell(Angelic Feather).charges >= 1 & UI(m_AF) & !inareaid == 1040', 'player'},
 {'Body and Mind', 'movingfor >= 2 & !buff(Body And Mind) & UI(m_Body) !inareaid == 1040', 'player'},
-{Cooldowns,'partycheck == 2 & UI(myth_heal)'},
+{Cooldowns,'group.type == 2 & UI(myth_heal)'},
 {Potions},
 {Keybinds}, 
 {Beforepull,'pull_timer >= 1 & pull_timer <= 20'},
 {AOE,'toggle(AOE) & !UI(myth_heal)'}, 
 {Mythic,'UI(myth_heal)'},
-{PoMooc,'partycheck >=2 & !player.moving & UI(ooc_heal) & !UI(myth_heal)'},
-
+{PoMooc,'group.type >=2 & !player.moving & UI(ooc_heal) & !UI(myth_heal)'},
+--{'Flash Heal', 'health <100 ', 'player'},
 }
 
 local blacklist = {
@@ -432,7 +432,6 @@ NeP.CR:Add(257, {
   gui = GUI,
   gui_st = {title='Yobleed\'s Priest Pack: Holy', width='512', height='256', color='FACC2E'},
   load = exeOnLoad,
-  ids = yobleed.spell_ids,
+  ids = yobleed.Spell_wow801_Priest_Holy,
   blacklist = blacklist
-
 })

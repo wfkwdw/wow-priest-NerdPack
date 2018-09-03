@@ -5,9 +5,10 @@
   <Script file="fakeunits.lua"/>
   <Script file="spell_ids.lua"/>
   <Script file="rotations\priest\shadow.lua"/>
-  <Script file="rotations\priest\shadow2.lua"/>
   <Script file="rotations\priest\holy.lua"/>
   <Script file="rotations\priest\holymagetower.lua"/>
   <Script file="rotations\priest\discipline.lua"/>
   <Script file="rotations\priest\discmagetower.lua"/>
+  <Script file="rotations\priest\Priest_Discipline.lua"/>
+  <Script file="rotations\priest\Priest_Holy.lua"/>
 </Ui>
